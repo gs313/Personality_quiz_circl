@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Personality Quiz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #14B8A6 0%, #0891B2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1F2937;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            height: 100vh;
+            max-height: 800px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .intro-screen, .result-screen {
+            padding: 60px 40px;
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .quiz-screen {
+            display: none;
+            height: 100%;
+            position: relative;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Question Background Image */
+        .question-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23F0F9FF"/><text x="200" y="150" text-anchor="middle" font-size="48" fill="%2314B8A6">🌅</text></svg>');
+        }
+
+        .question-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 70%, transparent);
+        }
+
+        .question-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 40px;
+            z-index: 10;
+        }
+
+        h1 {
+            color: #14B8A6;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .intro-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            color: #6B7280;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .start-btn, .option-btn, .share-btn, .restart-btn {
+            background: #14B8A6;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .start-btn:hover, .share-btn:hover, .restart-btn:hover {
+            background: #0F766E;
+            transform: translateY(-1px);
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            z-index: 20;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #FBBF24;
+            transition: width 0.8s ease;
+            width: 0%;
+        }
+
+        .question-number {
+            color: #14B8A6;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            color: #1F2937;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: white;
+            color: #374151;
+            border: 2px solid #E5E7EB;
+            padding: 18px 24px;
+            text-align: left;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .option-btn:hover {
+            border-color: #14B8A6;
+            background: #F0FDFA;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.15);
+        }
+
+        .option-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #14B8A6, #0891B2);
+            color: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .result-image {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .personality-title {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .personality-description {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            opacity: 0.95;
+        }
+
+        .share-container {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Image Upload Styles for Easy Customization */
+        .question-1 { background-image: url('./images/question-1.png'); }
+        .question-2 { background-image: url('./images/question-2.png'); }
+        .question-3 { background-image: url('./images/question-3.png'); }
+        .question-4 { background-image: url('./images/question-4.png'); }
+        .question-5 { background-image: url('./images/question-5.png'); }
+        .question-6 { background-image: url('./images/question-6.png'); }
+        .question-7 { background-image: url('./images/question-7.png'); }
+        .question-8 { background-image: url('./images/question-8.png'); }
+        .question-9 { background-image: url('./images/question-9.png'); }
+        .question-10 { background-image: url('./images/question-10.png'); }
+
+        .result-bookworm { background-image: url('./images/result-bookworm.png'); }
+        .result-social_butterfly { background-image: url('./images/result-social-butterfly.png'); }
+        .result-sunshine_friend { background-image: url('./images/result-sunshine-friend.png'); }
+        .result-zen_bean { background-image: url('./images/result-zen-bean.png'); }
+        .result-plant_parent { background-image: url('./images/result-plant-parent.png'); }
+        .result-creative_soul { background-image: url('./images/result-creative-soul.png'); }
+        .result-heart_helper { background-image: url('./images/result-heart-helper.png'); }
+        .result-bright_mind { background-image: url('./images/result-bright-mind.png'); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                height: 100vh;
+                max-height: none;
+                border-radius: 0;
+            }
+            
+            .intro-screen, .result-screen {
+                padding: 40px 24px;
+            }
+            
+            .question-content {
+                padding: 24px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .personality-title {
+                font-size: 1.8rem;
+            }
+            
+            .question-text {
+                font-size: 1.2rem;
+            }
+            
+            .question-background {
+                height: 55%;
+            }
+            
+            .question-overlay {
+                height: 55%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Intro Screen -->
+        <div class="intro-screen" id="introScreen">
+            <h1>Campus Personality Quiz</h1>
+            <div class="intro-text">
+                <p>Imagine starting your day on campus, the sun just peeking over the buildings, and you're faced with your first choice: Do you slip into the cozy quiet of the library, grab a latte from your favorite café, or send a hilarious meme to your friends to kick off the morning laughs?</p>
+                <br>
+                <p>Discover your unique campus personality through 10 fun scenarios! Each choice reveals something special about who you are on campus.</p>
+            </div>
+            <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div class="quiz-screen" id="quizScreen">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="question-background" id="questionBackground"></div>
+            <div class="question-overlay"></div>
+            <div class="question-content">
+                <div class="question-number" id="questionNumber">Question 1 of 10</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options-container" id="optionsContainer"></div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div class="result-screen" id="resultScreen">
+            <div class="result-card" id="resultCard">
+                <div class="result-image" id="resultImage">🎉</div>
+                <div class="personality-title" id="personalityTitle"></div>
+                <div class="personality-description" id="personalityDescription"></div>
+            </div>
+            <div class="share-container">
+                <button class="share-btn" onclick="shareResult()">Share Result</button>
+                <button class="restart-btn" onclick="restartQuiz()">Take Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                text: "Starting your day on campus, the sun just peeking over the buildings, you choose to:",
+                className: "question-1",
+                options: [
+                    { text: "Slip into the cozy quiet of the library", type: "bookworm" },
+                    { text: "Grab a latte from your favorite café", type: "social_butterfly" },
+                    { text: "Send a hilarious meme to friends", type: "sunshine_friend" }
+                ]
+            },
+            {
+                text: "A free moment between classes invites you to:",
+                className: "question-2",
+                options: [
+                    { text: "Find a nook to chill and recharge", type: "zen_bean" },
+                    { text: "Tend to your little green plants in your dorm", type: "plant_parent" },
+                    { text: "Lose yourself in your playlist, dancing like no one's watching", type: "creative_soul" }
+                ]
+            },
+            {
+                text: "As the campus buzzes around you, you spot your chance to shine by:",
+                className: "question-3",
+                options: [
+                    { text: "Sharing snacks from your secret stash", type: "heart_helper" },
+                    { text: "Sparking up a lively debate", type: "bright_mind" },
+                    { text: "Breaking out into a spontaneous dance party", type: "creative_soul" }
+                ]
+            },
+            {
+                text: "When a group project rolls around, you decide to:",
+                className: "question-4",
+                options: [
+                    { text: "Be the organizer who keeps everyone on track", type: "bright_mind" },
+                    { text: "Be the creative spark who brings fresh ideas", type: "creative_soul" },
+                    { text: "Keep spirits high with endless enthusiasm", type: "social_butterfly" }
+                ]
+            },
+            {
+                text: "At lunch, you:",
+                className: "question-5",
+                options: [
+                    { text: "Share homemade treats with everyone", type: "heart_helper" },
+                    { text: "Try a new spot you've been dying to check out", type: "social_butterfly" },
+                    { text: "Munch quickly while scrolling through the latest memes", type: "sunshine_friend" }
+                ]
+            },
+            {
+                text: "The afternoon opens up unexpectedly, so you:",
+                className: "question-6",
+                options: [
+                    { text: "Head outside to care for the campus garden", type: "plant_parent" },
+                    { text: "Hit the gym for a quick game", type: "zen_bean" },
+                    { text: "Gather your friends for some laughter and socializing", type: "social_butterfly" }
+                ]
+            },
+            {
+                text: "At the evening event, you find yourself:",
+                className: "question-7",
+                options: [
+                    { text: "Rallying for a cause you believe in", type: "bright_mind" },
+                    { text: "Spinning tracks to keep the vibe alive", type: "creative_soul" },
+                    { text: "Passionately debating the hot topics of the day", type: "bright_mind" }
+                ]
+            },
+            {
+                text: "When the pressure mounts during exams, you cope by:",
+                className: "question-8",
+                options: [
+                    { text: "Burning the midnight oil with coffee", type: "bookworm" },
+                    { text: "Taking meme breaks with friends", type: "sunshine_friend" },
+                    { text: "Finding peace in quiet moments with your plants", type: "zen_bean" }
+                ]
+            },
+            {
+                text: "Your perfect weekend is:",
+                className: "question-9",
+                options: [
+                    { text: "A lively party meeting new faces", type: "social_butterfly" },
+                    { text: "A relaxing day doing exactly what you love", type: "zen_bean" },
+                    { text: "Joining a club that fights for what matters", type: "bright_mind" }
+                ]
+            },
+            {
+                text: "When your friends think of you, they'd describe you as:",
+                className: "question-10",
+                options: [
+                    { text: "Their go-to for endless giggles", type: "sunshine_friend" },
+                    { text: "A calming, supportive presence", type: "zen_bean" },
+                    { text: "The one who always helps out", type: "heart_helper" }
+                ]
+            }
+        ];
+
+        const personalities = {
+            bookworm: {
+                title: "The Campus Scholar",
+                description: "You're the thoughtful academic who finds peace in quiet spaces and meaningful conversations. Your love for learning and deep thinking makes you the go-to person for insightful discussions and study sessions.",
+                emoji: "📚",
+                className: "result-bookworm"
+            },
+            social_butterfly: {
+                title: "The Campus Connector",
+                description: "You're the vibrant social hub who brings people together effortlessly. Your natural charisma and love for new experiences make every gathering more fun and memorable.",
+                emoji: "🦋",
+                className: "result-social_butterfly"
+            },
+            sunshine_friend: {
+                title: "The Campus Comedian",
+                description: "You're the mood-lifter who can brighten anyone's day with perfect timing and infectious humor. Your positive energy and quick wit make you everyone's favorite study break companion.",
+                emoji: "☀️",
+                className: "result-sunshine_friend"
+            },
+            zen_bean: {
+                title: "The Campus Zen Master",
+                description: "You're the balanced soul who brings calm to campus chaos. Your mindful approach and steady presence make you the perfect friend for both adventures and quiet moments.",
+                emoji: "🧘",
+                className: "result-zen_bean"
+            },
+            plant_parent: {
+                title: "The Campus Nurturer",
+                description: "You're the caring soul who helps everything around you flourish. Your gentle nature and attention to detail create beautiful spaces and meaningful connections wherever you go.",
+                emoji: "🌱",
+                className: "result-plant_parent"
+            },
+            creative_soul: {
+                title: "The Campus Artist",
+                description: "You're the innovative spirit who sees beauty and possibility everywhere. Your creative energy and unique perspective inspire others to think outside the box and embrace their artistic side.",
+                emoji: "🎨",
+                className: "result-creative_soul"
+            },
+            heart_helper: {
+                title: "The Campus Angel",
+                description: "You're the generous spirit who always puts others first. Your kindness and thoughtful gestures create a warm, welcoming atmosphere that makes campus feel like home for everyone.",
+                emoji: "💝",
+                className: "result-heart_helper"
+            },
+            bright_mind: {
+                title: "The Campus Leader",
+                description: "You're the passionate visionary who stands up for what matters. Your intelligence and determination inspire others to think critically and work toward positive change on campus and beyond.",
+                emoji: "💡",
+                className: "result-bright_mind"
+            }
+        };
+
+        let currentQuestion = 0;
+        let scores = {};
+        let userAnswers = [];
+
+        // Initialize scores
+        Object.keys(personalities).forEach(type => {
+            scores[type] = 0;
+        });
+
+        function startQuiz() {
+            document.getElementById('introScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            
+            // Update progress
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+            document.getElementById('questionText').textContent = question.text;
+            
+            // Update background image
+            const questionBackground = document.getElementById('questionBackground');
+            questionBackground.className = `question-background ${question.className}`;
+            
+            // Create options
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option.text;
+                button.onclick = () => selectAnswer(option.type, option.text);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function selectAnswer(type, answerText) {
+            scores[type]++;
+            userAnswers.push(answerText);
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                setTimeout(() => {
+                    showQuestion();
+                }, 200);
+            } else {
+                setTimeout(() => {
+                    showResult();
+                }, 200);
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
+            
+            // Find personality with highest score
+            let topPersonality = null;
+            let highestScore = 0;
+            
+            Object.entries(scores).forEach(([type, score]) => {
+                if (score > highestScore) {
+                    highestScore = score;
+                    topPersonality = type;
+                }
+            });
+            
+            const personality = personalities[topPersonality];
+            document.getElementById('personalityTitle').textContent = personality.title;
+            document.getElementById('personalityDescription').textContent = personality.description;
+            document.getElementById('resultImage').textContent = personality.emoji;
+            
+            // Add background image class to result card
+            const resultCard = document.getElementById('resultCard');
+            resultCard.className = `result-card ${personality.className}`;
+        }
+
+        function shareResult() {
+            const personalityTitle = document.getElementById('personalityTitle').textContent;
+            const shareText = `I just discovered I'm ${personalityTitle} in this Campus Personality Quiz! 🎓✨ What's your campus personality?`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Campus Personality Quiz Result',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(shareText + ' ' + window.location.href).then(() => {
+                    alert('Result copied to clipboard! 📋');
+                });
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = [];
+            Object.keys(personalities).forEach(type => {
+                scores[type] = 0;
+            });
+            
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('introScreen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
